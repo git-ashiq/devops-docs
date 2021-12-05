@@ -4,10 +4,10 @@ https://serverspace.io/support/help/how-to-get-lets-encrypt-ssl-on-ubuntu/
 ## Install letsencrypt
 sudo apt install letsencrypt
 
-## Status
+## Status of letsencrypt
 sudo systemctl status certbot.timer
 
-## Standalone server for getting the "Let's Encrypt" SSL certificate
+##  letsencrypt SSL certificate for Standalone server (No Web Server)
 sudo certbot certonly --manual --agree-tos --preferred-challenges dns -d oxy.decode-iot.com
 
 ## Convert pem files to pfx for Azure Application Gateway listeners 
