@@ -1,0 +1,84 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: prometheus-config
+  namespace: decode-metrics
+data:
+  prometheus.rules: |
+    groups:
+    - name: cameras
+      rules:
+      - record: total_camera_count
+        expr: count(camera_status)
+      - record: lcm1_camera_count   
+        expr: count(camera_lcm==1)
+      - record: lcm0_camera_count
+        expr: count(camera_lcm==0)
+      - record: lcm1_camera_total_memory_count
+        expr: count(camera_total_memory<=0)
+      - record: lcm0_camera_total_memory_count
+        expr: count(camera_total_memory>0) 
+      - record: total_cached_memory_actual
+        expr: count(camera_cached_memory>0)
+      - record: total_cached_memory_failure
+        expr: count(camera_cached_memory<=0)    
+      - record: total_free_memory_actual
+        expr: count(camera_free_memory>0)
+      - record: total_free_memory_failure
+        expr: count(camera_free_memory<=0)    
+      - record: total_value_camera_count
+        expr: count(camera_status{deviceId=~"Camera.+"})
+      - record: total_sen_count
+        expr: count(camera_status{smartedgeId=~"energetika4-OptiPlex-5060|amandeep-OptiPlex-7070"}==1)
+      - record: total_premium_camera_count
+        expr: count(camera_status{cameraType="premium"})  
+      - record: camera_connection_count_1
+        expr: count(camera_status==1)
+  prometheus.yml: |
+    # my global config
+    global:
+      scrape_interval: 3m # Set the scrape interval to every 15 seconds. Default is every 1 minute.
+      scrape_timeout: 3m # scrape_timeout is set to the global default (10s).
+      evaluation_interval: 3m # Evaluate rules every 15 seconds. The default is every 1 minute.
+      
+
+    # Alertmanager configuration
+    alerting:
+      alertmanagers:
+      - static_configs:
+        - targets:
+          # - alertmanager:9093
+
+    # Load rules once and periodically evaluate them according to the global 'evaluation_interval'.
+    rule_files:
+      # - "first_rules.yml"
+      - /etc/prometheus/prometheus.rules
+     
+    # A scrape configuration containing exactly one endpoint to scrape:
+    # Here it's Prometheus itself.
+    scrape_configs:
+      # The job name is added as a label `job=<job_name>` to any timeseries scraped from this config.
+      - job_name: 'prometheus'
+
+        metrics_path: /prometheus/metrics
+        # scheme defaults to 'http'.
+
+        static_configs:
+        - targets: ['prometheus-service.decode-metrics.svc.cluster.local']
+        # The job name is added as a label `job=<job_name>` to any timeseries scraped from this config.
+        
+      - job_name: 'container-metrics'
+
+        # metrics_path defaults to '/metrics'
+        # scheme defaults to 'http'.
+
+        static_configs:
+        - targets: ['container-metrics-service.decode-metrics.svc.cluster.local']
+        
+      - job_name: 'device-metrics'
+
+        # metrics_path defaults to '/metrics'
+        # scheme defaults to 'http'.
+
+        static_configs:
+        - targets: ['device-metrics-service.decode-metrics.svc.cluster.local']

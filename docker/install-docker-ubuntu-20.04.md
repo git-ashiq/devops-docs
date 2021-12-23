@@ -1,6 +1,7 @@
 ## How To Install and Use Docker on Ubuntu 20.04
 https://www.digitalocean.com/community/tutorials/how-to-install-and-use-docker-on-ubuntu-20-04
 
+
 #### Create the docker group if it does not exist
 ```
 sudo groupadd docker

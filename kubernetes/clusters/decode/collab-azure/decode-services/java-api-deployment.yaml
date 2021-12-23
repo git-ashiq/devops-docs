@@ -1,0 +1,44 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: java-api-deployment
+  namespace: decode-services
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: java-api
+  template:
+    metadata:
+      labels:
+        app: java-api
+    spec:
+      containers:
+        - name: java-api-container
+          image: decodekubernetesacr.azurecr.io/collab-azure/decode-javaapi:latest
+          resources:
+            requests:
+              cpu: 50m
+              memory: 768Mi
+            limits:
+              cpu: 200m
+              memory: 800Mi
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8081
+
+---        
+
+apiVersion: autoscaling/v1
+kind: HorizontalPodAutoscaler
+metadata:
+  name: hpa-java-api-deployment
+  namespace: decode-services
+spec:
+  maxReplicas: 2 # define max replica count
+  minReplicas: 1  # define min replica count
+  scaleTargetRef:
+    apiVersion: apps/v1beta1
+    kind: Deployment
+    name: java-api-deployment
+  targetCPUUtilizationPercentage: 80 # target CPU utilization

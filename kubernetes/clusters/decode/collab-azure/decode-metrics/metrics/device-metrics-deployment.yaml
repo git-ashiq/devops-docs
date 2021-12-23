@@ -1,0 +1,28 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: device-metrics-deployment
+  namespace: decode-metrics
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: device-metrics
+  template:
+    metadata:
+      labels:
+        app: device-metrics
+    spec:
+      containers:
+        - name: device-metrics-container
+          image: decodekubernetesacr.azurecr.io/collab-azure/decode-device-metrics:latest
+          resources:
+            requests:
+              cpu: 20m
+              memory: 56Mi
+            limits:
+              cpu: 50m
+              memory: 100Mi
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 9092

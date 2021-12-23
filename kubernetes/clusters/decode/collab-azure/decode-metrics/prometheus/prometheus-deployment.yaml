@@ -1,0 +1,66 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: prometheus
+  namespace: decode-metrics
+  labels:
+    app: prometheus
+spec:
+  replicas: 1
+  strategy:
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 1
+    type: RollingUpdate
+  selector:
+    matchLabels:
+      app: prometheus
+  template:
+    metadata:
+      labels:
+        app: prometheus
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "9090"
+    spec:
+      securityContext:
+        runAsUser: 1000
+        runAsGroup: 3000
+        fsGroup: 2000
+        fsGroupChangePolicy: "OnRootMismatch"
+      containers:
+      - name: prometheus
+        image: decodekubernetesacr.azurecr.io/collab-azure/decode-prometheus:latest
+        resources:
+            requests:
+              cpu: 20m
+              memory: 56Mi
+            limits:
+              cpu: 25m
+              memory: 120Mi
+        args:
+          - '--storage.tsdb.retention.time=666h'
+          - '--storage.tsdb.path=/prometheus'
+          - '--config.file=/etc/prometheus/prometheus.yml'
+          - '--web.route-prefix=/prometheus'
+        ports:
+        - name: web
+          containerPort: 9090
+        volumeMounts:
+        - name: prometheus-config-volume
+          mountPath: /etc/prometheus
+        - name: prometheus-storage-volume
+          mountPath: /prometheus
+        securityContext:
+          allowPrivilegeEscalation: false
+      restartPolicy: Always
+
+      volumes:
+      - name: prometheus-config-volume
+        configMap:
+            defaultMode: 420
+            name: prometheus-config
+
+      - name: prometheus-storage-volume
+        persistentVolumeClaim:
+            claimName: pvc-managed-ssd-data

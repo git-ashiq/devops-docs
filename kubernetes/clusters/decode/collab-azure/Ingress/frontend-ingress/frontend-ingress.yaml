@@ -1,0 +1,48 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: frontend-ingress
+  namespace: decode-services
+  annotations:
+    kubernetes.io/ingress.class: nginx
+    cert-manager.io/cluster-issuer: letsencrypt
+    nginx.ingress.kubernetes.io/rewrite-target: /$1
+    nginx.ingress.kubernetes.io/configuration-snippet: |
+      more_set_headers use-proxy-protocol: "true"
+spec:
+  tls:
+  - hosts:
+    - collab-azure.decode-iot.com
+    secretName: tls-secret
+  rules:
+    - host: collab-azure.decode-iot.com
+      http:
+        paths:
+          - backend:
+              service:
+                name: ui-service
+                port:
+                  number: 80
+            path: /(.*)
+            pathType: Prefix
+          - backend:
+              service:
+                name: java-api-service
+                port:
+                  number: 80
+            path: /Reserv/(.*)
+            pathType: Prefix                
+          - backend:
+              service:
+                name: mqtt-api-service
+                port:
+                  number: 80
+            path: /ReservMQTT/(.*)
+            pathType: Prefix      
+          - backend:
+              service:
+                name: grafana-service
+                port:
+                  number: 80
+            path: /grafana/(.*)
+            pathType: Prefix

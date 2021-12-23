@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: container-metrics-service
+  namespace: decode-metrics
+  labels:
+    app: container-metrics-service
+spec:
+  selector:
+    app: container-metrics
+  ports:
+    - port: 80
+      targetPort: 9091
+  type: ClusterIP

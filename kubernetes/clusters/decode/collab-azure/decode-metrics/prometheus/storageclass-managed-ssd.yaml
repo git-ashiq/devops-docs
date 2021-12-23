@@ -1,0 +1,11 @@
+kind: StorageClass
+apiVersion: storage.k8s.io/v1
+metadata:
+  name: managed-standard-ssd-retain
+provisioner: kubernetes.io/azure-disk
+volumeBindingMode: WaitForFirstConsumer # Default is Immediate, recommended is WaitForFirstConsumer
+allowVolumeExpansion: true # Allows the user to increase PVC request size later
+reclaimPolicy: Retain
+parameters:
+  storageaccounttype: StandardSSD_LRS
+  kind: Managed

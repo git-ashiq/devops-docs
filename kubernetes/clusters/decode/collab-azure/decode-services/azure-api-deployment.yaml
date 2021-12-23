@@ -1,0 +1,44 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: azure-api-deployment
+  namespace: decode-services
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: azure-api
+  template:
+    metadata:
+      labels:
+        app: azure-api
+    spec:
+      containers:
+        - name: azure-api-container
+          image: decodekubernetesacr.azurecr.io/collab-azure/decode-azureapi:latest
+          resources:
+            requests:
+              cpu: 100m
+              memory: 224Mi
+            limits:
+              cpu: 200m
+              memory: 288Mi
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8084
+
+---        
+
+apiVersion: autoscaling/v1
+kind: HorizontalPodAutoscaler
+metadata:
+  name: hpa-azure-api-deployment
+  namespace: decode-services
+spec:
+  maxReplicas: 2 # define max replica count
+  minReplicas: 1  # define min replica count
+  scaleTargetRef:
+    apiVersion: apps/v1beta1
+    kind: Deployment
+    name: azure-api-deployment
+  targetCPUUtilizationPercentage: 80 # target CPU utilization

@@ -1,0 +1,28 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: azure-api-deployment
+  namespace: decode-services
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: azure-api
+  template:
+    metadata:
+      labels:
+        app: azure-api
+    spec:
+      containers:
+        - name: azure-api-container
+          image: decodekubernetesacr.azurecr.io/dev/decode-azureapi:latest
+          resources:
+            requests:
+              cpu: 300m
+              memory: 512Mi
+            limits:
+              cpu: 350m
+              memory: 576Mi
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8084

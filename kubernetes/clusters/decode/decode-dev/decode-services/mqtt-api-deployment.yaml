@@ -1,0 +1,28 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mqtt-api-deployment
+  namespace: decode-services
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mqtt-api
+  template:
+    metadata:
+      labels:
+        app: mqtt-api
+    spec:
+      containers:
+        - name: mqtt-api-container
+          image: decodekubernetesacr.azurecr.io/dev/decode-mqtt:latest
+          resources:
+            requests:
+              cpu: 300m
+              memory: 512Mi
+            limits:
+              cpu: 350m
+              memory: 576Mi
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8087
